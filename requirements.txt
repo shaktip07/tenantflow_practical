@@ -1,0 +1,28 @@
+fastapi[all]
+uvicorn==0.30.3
+uvicorn-worker
+starlette==0.37.2
+
+pyjwt
+passlib[bcrypt]
+python-multipart
+
+#Database
+SQLAlchemy
+SQLAlchemy-Utils
+sqlalchemy[asyncio]
+alembic
+asyncpg
+
+# FastAPI Extensions and Utilities
+fastapi-pagination
+fastapi-filter[sqlalchemy]
+sqladmin
+prometheus-fastapi-instrumentator
+
+# Miscellaneous
+python-decouple
+
+
+PyJWT==2.8.0
+bcrypt==4.2.0
