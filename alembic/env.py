@@ -7,6 +7,7 @@ from alembic import context
 # Import your models here
 from app.db.session import Base
 from app.db.models import Organization, AdminUser
+from app.db.models.admin import AdminPanel
 import settings
 
 print(settings.DATABASE_URL, "settings.DATABASE_URL")

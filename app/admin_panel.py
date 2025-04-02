@@ -4,9 +4,9 @@ from sqlalchemy import select
 from starlette import status
 
 import settings
-from app.db.session import get_context_db
-from app.db.models import Organization
-from app.db.models.admin import AdminPanel as AdminModel
+from app.core.dependencies import get_context_db
+from app.db.models import Organization, AdminUser
+from app.db.models.admin import AdminPanel
 from app.db.session import engine, async_session
 
 from sqladmin import Admin
@@ -23,7 +23,7 @@ class AdminAuth(AuthenticationBackend):
 
         async with get_context_db() as db:
             admin = await db.execute(
-                select(AdminModel).filter(AdminModel.username == username)
+                select(AdminPanel).filter(AdminPanel.username == username)
             )
 
             admin = admin.scalar_one_or_none()
@@ -45,7 +45,7 @@ class AdminAuth(AuthenticationBackend):
 
         async with get_context_db() as db:
             admin = await db.execute(
-                select(AdminModel).filter(AdminModel.username == user)
+                select(AdminPanel).filter(AdminPanel.username == user)
             )
             admin = admin.scalar_one_or_none()
             if not admin:
@@ -66,33 +66,39 @@ class BaseModelView(ModelView):
     save_as = True
 
 
-class UserAdmin(BaseModelView, model=AdminModel):
-    category = "User"
-    column_list = [AdminModel.id, AdminModel.username]
+class PanelUsers(BaseModelView, model=AdminPanel):
+    category = "Panel"
+    column_list = [AdminPanel.id, AdminPanel.username]
 
 
-class OrganizationAdmin(BaseModelView):
-    category = "Logs"
+class OrganizationAdmin(BaseModelView, model=Organization):
+    category = "Organization"
+    column_list = [
+        Organization.id,
+        Organization.name,
+        Organization.password,
+        Organization.host_name,
+        Organization.port,
+    ]
+    order_by = [Organization.name.desc()]
+    column_sortable_list = [
+        Organization.name,
+    ]
+    column_searchable_list = [
+        Organization.name,
+    ]
 
 
-class CampaignAdmin(BaseModelView):
-    category = "Campaigns"
-
-
-class DispositionsAdmin(BaseModelView):
-    category = "Dispositions"
-
-
-class SuperAdmin(BaseModelView):
-    category = "SuperAdmin"
-
-
-class CallFlowBase(BaseModelView):
-    category = "CallFlows"
-
-
-class CommonAdmin(BaseModelView):
-    category = "Common"
+class AdminUsers(BaseModelView, model=AdminUser):
+    category = "Admin Users"
+    column_list = [AdminUser.id, AdminUser.email, AdminUser.password]
+    order_by = [AdminUser.email.desc()]
+    column_sortable_list = [
+        AdminUser.email,
+    ]
+    column_searchable_list = [
+        AdminUser.email,
+    ]
 
 
 def init_admin(app: FastAPI):
@@ -105,4 +111,6 @@ def init_admin(app: FastAPI):
         authentication_backend=authentication_backend,
     )
 
-    admin.add_view(UserAdmin)
+    admin.add_view(PanelUsers)
+    admin.add_view(OrganizationAdmin)
+    admin.add_view(AdminUsers)

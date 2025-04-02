@@ -3,12 +3,13 @@ uvicorn==0.30.3
 uvicorn-worker
 starlette==0.37.2
 
-pyjwt
+# Security & Authentication
+PyJWT==2.8.0
 passlib[bcrypt]
-python-multipart
+bcrypt==4.2.0
 
-#Database
-SQLAlchemy
+#Database & ORM
+SQLAlchemy 
 SQLAlchemy-Utils
 sqlalchemy[asyncio]
 alembic
@@ -19,10 +20,7 @@ fastapi-pagination
 fastapi-filter[sqlalchemy]
 sqladmin
 prometheus-fastapi-instrumentator
+python-multipart
 
 # Miscellaneous
 python-decouple
-
-
-PyJWT==2.8.0
-bcrypt==4.2.0

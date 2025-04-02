@@ -1,20 +1,18 @@
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.db.models import Organization
+from sqlalchemy.future import select
+
+from app.db.models import Organization, AdminUser
 from app.api.schemas import OrganizationCreateSchema, OrganizationListingSchema
 from app.core.dependencies import get_db
+from app.core.security import hash_password
 from app.base.response import (
     success_response,
     success_response_with_data,
     error_response,
 )
 from app.services.organization import create_org_database
-from app.core.security import hash_password
-
-# from app.security import hash_password
-from app.db.models import AdminUser
-from sqlalchemy.future import select
 
 router = APIRouter()
 
@@ -25,6 +23,17 @@ async def create_organization(
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
 ):
+    """
+    Endpoint to create a new organization along with an admin user.
+
+    Args:
+    - data (OrganizationCreateSchema): The organization data for creating the new organization.
+    - background_tasks (BackgroundTasks): Used to add background tasks like database creation.
+    - db (AsyncSession): The main database session to interact with the primary database.
+
+    Returns:
+    - success_response: JSON response indicating successful organization creation.
+    """
     try:
         stmt = select(Organization).filter(Organization.name == data.organization_name)
         existing_org = await db.execute(stmt)
@@ -50,6 +59,7 @@ async def create_organization(
         db.add(new_user)
         await db.commit()
 
+        # Add a background task to create the organization's database
         background_tasks.add_task(create_org_database, data)
 
         return success_response("Organization created successfully")
@@ -62,6 +72,17 @@ async def create_organization(
 async def get_organizations(
     org_name: Optional[str] = None, db: AsyncSession = Depends(get_db)
 ):
+    """
+    Endpoint to get a list of organizations, with an optional filter by name.
+
+    Args:
+    - org_name (Optional[str]): The name of the organization to search for.
+    - db (AsyncSession): The main database session to interact with the primary database.
+
+    Returns:
+    - success_response_with_data: JSON response with a list of organizations.
+    - error_response: JSON response if no organizations are found.
+    """
     try:
         stmt = select(Organization)
 

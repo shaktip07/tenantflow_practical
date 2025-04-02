@@ -10,7 +10,7 @@ from app.api.routes import api_router
 from app.middleware.auth import (
     JWTAuthMiddleware
 )
-from app.admin import init_admin
+from app.admin_panel import init_admin
 
 import settings
 

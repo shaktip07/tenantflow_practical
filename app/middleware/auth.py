@@ -12,11 +12,14 @@ ALGORITHM = settings.ALGORITHM
 NO_AUTH_URLS = [
     "/login",
     "/tenantflow/docs",
+    "/tenantflow/admin/",
     "/tenantflow/redoc",
     "/docs",
     "/openapi.json",
     "/tenantflow/openapi.json",
     "/api/admin/login",
+    "/api/admin/register",
+    "/tenantflow/login",
 ]
 
 
@@ -26,8 +29,8 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request: Request, call_next):
         request.state.api_key = None
-
-        if request.url.path in NO_AUTH_URLS or "tenantflow/admin" in request.url.path:
+        print(f"request.url.path : {request.url.path}")
+        if request.url.path in NO_AUTH_URLS or "tenantflow" in request.url.path:
             return await call_next(request)
 
         token = await self.get_token(request)

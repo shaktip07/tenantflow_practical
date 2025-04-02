@@ -15,21 +15,3 @@ engine = create_async_engine(
 async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 Base = declarative_base()
-
-
-async def get_db():
-    """Dependency to get async DB session"""
-    async with async_session() as session:
-        try:
-            yield session
-        finally:
-            await session.close()
-
-
-@asynccontextmanager
-async def get_context_db():
-    async with async_session() as session:
-        try:
-            yield session
-        finally:
-            await session.close()
